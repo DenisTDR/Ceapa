@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace p1
+{
+    class Order
+    {
+        public int Id { get; private set; }
+        public Point Location { get; set; }
+
+        public int TotalItems { get; set; } 
+
+        public List<int> Needs { get; set; }
+
+        public Order(int id)
+        {
+            Id = id;
+        }
+
+    }
+}
