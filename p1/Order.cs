@@ -21,5 +21,11 @@ namespace p1
             Id = id;
         }
 
+        public bool Done
+        {
+            get { return Needs.Sum() == 0; }
+        }
+
+        public List<Tuple<Warehouse, double>> SortedWarehouses { get; set; } 
     }
 }

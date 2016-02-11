@@ -10,7 +10,7 @@ namespace p1.Commands
     {
         private readonly int _droneId;
 
-        private readonly int _warehouseId;
+        public readonly int WarehouseId;
         private readonly int _productType;
         private readonly int _productCount;
         private readonly char _commandChar;
@@ -18,7 +18,7 @@ namespace p1.Commands
         public LoadCommand(int droneId, bool load, int warehouseId, int productType, int productCount)
         {
             _droneId = droneId;
-            _warehouseId = warehouseId;
+            WarehouseId = warehouseId;
             _productType = productType;
             _productCount = productCount;
             _commandChar = load ? 'L' : 'U';
@@ -26,8 +26,13 @@ namespace p1.Commands
 
         public override string GetInfo()
         {
-            return string.Format("{0} {1} {2} {3} {4}", _droneId, _commandChar, _warehouseId, _productType,
+            return string.Format("{0} {1} {2} {3} {4}", _droneId, _commandChar, WarehouseId, _productType,
                 _productCount);
+        }
+
+        public LoadCommand MakeUnloadCommand(int orderId)
+        {
+            return new LoadCommand(_droneId, false, orderId, _productType, _productCount);
         }
     }
 }

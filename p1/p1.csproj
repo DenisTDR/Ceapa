@@ -47,9 +47,10 @@
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Drone.cs" />
     <Compile Include="Commands\LoadCommand.cs" />
-    <Compile Include="Commands\UnloadCommand.cs" />
+    <Compile Include="Commands\DeliverCommand.cs" />
     <Compile Include="Commands\WaitCommand.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Program.cs" />
@@ -58,6 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Shits\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
