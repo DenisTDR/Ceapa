@@ -14,11 +14,20 @@ namespace p1
         public static readonly List<Order> Orders = new List<Order>();
         public static readonly List<Drone> Drones = new List<Drone>();
 
-        private static List<Command> allCommands = new List<Command>(); 
-        static void Main(string[] args)
+        private static List<Command> allCommands = new List<Command>();
+
+        private static void Main(string[] args)
         {
-            var sr = new StreamReader("mother_of_all_warehouses.in");
+            //DoShit("redundancy");
+            DoShit("busy_day");
+            //DoShit("mother_of_all_warehouses");
+        }
+
+        static void DoShit(string fileName)
+        {
+            var sr = new StreamReader(fileName+".in");
             Loader.MotherOfLoad(sr, Warehouses, Orders, Drones);
+            sr.Close();
 
 
             var sortedOrders = GetOrdersSorted();
@@ -27,11 +36,21 @@ namespace p1
             {
                 while (!order.Done)
                 {
-                    foreach (var drone in Drones)
+                    var avlbDrones = Drones.Where(x => x.Available).ToList();
+                    if (avlbDrones.Count == 0)
                     {
+                        return;
+                    }
+                    foreach (var drone in avlbDrones)
+                    {
+
                         if (IncarcaDrona(drone, order))
                         {
                             drone.UnloadToOrder(order.Id);
+                        }
+                        if (allCommands.Count >= 8969 && drone.Id == 6)
+                        {
+                            
                         }
                         allCommands.AddRange(drone.Commands);
 
@@ -41,6 +60,18 @@ namespace p1
                     }
                 }
             }
+
+            var sw = new StreamWriter(fileName + ".out");
+            sw.WriteLine(allCommands.Count);
+            foreach (var cmd in allCommands)
+            {
+                sw.WriteLine(cmd.GetInfo());
+            }
+            sw.Close();
+            allCommands.Clear();
+            Warehouses.Clear();
+            Drones.Clear();
+            Orders.Clear();
         }
 
         private static List<Order> GetOrdersSorted()
@@ -85,11 +116,22 @@ namespace p1
                             //drona incarcata la maxim
                             return stLoaded;
                         }
-                        order.Needs[i] -= maxPosCrtLoad;
-                        wh.Item1.Products[i] -= maxPosCrtLoad;
+                        loadedWeight += maxPosCrtLoad*Config.ProdWeights[i];
+                        if (loadedWeight > Config.MaxPayload)
+                        {
+                            
+                        }
 
-                        drona.Commands.Add(new LoadCommand(drona.Id, true, wh.Item1.Id, i, maxPosCrtLoad));
-                        stLoaded = true;
+                        if (drona.AddCommand(new LoadCommand(drona.Id, true, wh.Item1.Id, i, maxPosCrtLoad)))
+                        {
+                            order.Needs[i] -= maxPosCrtLoad;
+                            wh.Item1.Products[i] -= maxPosCrtLoad;
+                            stLoaded = true;
+                        }
+                        else
+                        {
+                            return stLoaded;
+                        }
                     }
                 }
             }

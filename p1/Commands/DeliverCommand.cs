@@ -10,24 +10,24 @@ namespace p1.Commands
     {
         private readonly int _droneId;
 
-        private readonly int _orderId;
-        private readonly int _productType;
-        private readonly int _productCount;
+        public readonly int OrderId;
+        public readonly int ProductType;
+        public readonly int ProductCount;
         private readonly char _commandChar;
 
         public DeliverCommand(int droneId, int orderId, int productType, int productCount)
         {
             _droneId = droneId;
-            _orderId = orderId;
-            _productType = productType;
-            _productCount = productCount;
+            OrderId = orderId;
+            ProductType = productType;
+            ProductCount = productCount;
             _commandChar = 'D';
         }
 
         public override string GetInfo()
         {
-            return string.Format("{0} {1} {2} {3} {4}", _droneId, _commandChar, _orderId, _productType,
-                _productCount);
+            return string.Format("{0} {1} {2} {3} {4}", _droneId, _commandChar, OrderId, ProductType,
+                ProductCount);
         }
     }
 }
