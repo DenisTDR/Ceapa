@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using p1.Commands;
 
 namespace p1
@@ -12,61 +13,48 @@ namespace p1
 
         public Point Location { get; set; }
 
-        public int timpTrecut = 0;
-        public bool Available { get { return timpTrecut < Config.Turns; } }
+        public int crtTurn = 0;
+        public bool Available { get { return crtTurn < Config.Turns; } }
 
         public Drone(int id)
         {
             Commands = new List<Command>();
             Id = id;
+            Cargo = new int[Config.ProductTypes].ToList();
         }
 
-        public int crtWeight = 0;
-        public bool AddCommand(Command cmd )
+        public List<int> Cargo { get; private set; }
+
+        public void LoadSomething(Warehouse wh, int productType, int productCount)
         {
+            Cargo[productType] += productCount;
+            Commands.Add(new LoadCommand(this.Id, true, wh.Id, productType, productCount));
 
-            if (cmd is LoadCommand)
+            var dist = wh.Location.DistTo(this.Location).Ceil();
+            crtTurn += dist + 1;
+
+            if (CurrentWeight > Config.MaxPayload || CurrentWeight < 0)
             {
-                var lc = (LoadCommand) cmd;
-                var dist = (int) Math.Ceiling(Program.Warehouses[lc.WarehouseId].Location.DistTo(this.Location));
-
-                this.Location = Program.Warehouses[lc.WarehouseId].Location;
-                var crtReqTime = dist + 1;
-                if (crtReqTime + timpTrecut > Config.Turns)
-                {
-                    return false;
-                }
-                timpTrecut += crtReqTime;
-                crtWeight += lc.ProductCount*Config.ProdWeights[lc.ProductType];
-
+                
             }
-            else if (cmd is DeliverCommand)
+        }
+       
+
+        public void DeliverToOrder(Order order)
+        {
+            var loadCommands = this.Commands.Where(c => c is LoadCommand).Cast<LoadCommand>().ToList();
+            foreach (var loadCommand in loadCommands)
             {
-                var dc = (DeliverCommand)cmd;
-                var dist = (int)Math.Ceiling(Program.Orders[dc.OrderId].Location.DistTo(this.Location));
-
-                this.Location = Program.Orders[dc.OrderId].Location;
-                var crtReqTime = dist + 1;
-
-                if (crtReqTime + timpTrecut > Config.Turns)
-                {
-                    return false;
-                }
-                timpTrecut += crtReqTime;
-                crtWeight -= lc.ProductCount * Config.ProdWeights[lc.ProductType];
+                Commands.Add(new DeliverCommand(this.Id, order.Id, loadCommand.ProductType, loadCommand.ProductCount));
+                Cargo[loadCommand.ProductType] -= loadCommand.ProductCount;
             }
-
-            Commands.Add(cmd);
-            return true;
         }
 
-        public void UnloadToOrder(int orderId)
+        public int CurrentWeight
         {
-            var x = Commands.Count;
-            for (int i = 0; i < x; i++)
+            get
             {
-                if (Commands[i] is LoadCommand)
-                    AddCommand(((LoadCommand) Commands[i]).MakeDeliverCommand(orderId));
+                return Cargo.Select((t, i) => Config.ProdWeights[i]*t).Sum();
             }
         }
     }

@@ -29,10 +29,6 @@ namespace p1.Commands
             return string.Format("{0} {1} {2} {3} {4}", _droneId, _commandChar, WarehouseId, ProductType,
                 ProductCount);
         }
-
-        public DeliverCommand MakeDeliverCommand(int orderId)
-        {
-            return new DeliverCommand(_droneId, orderId, ProductType, ProductCount);
-        }
+        
     }
 }

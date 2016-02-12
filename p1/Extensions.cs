@@ -13,5 +13,10 @@ namespace p1
         {
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.X, 2));
         }
+
+        public static int Ceil(this double d)
+        {
+            return (int) Math.Ceiling(d);
+        }
     }
 }

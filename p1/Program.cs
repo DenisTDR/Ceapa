@@ -18,20 +18,26 @@ namespace p1
 
         private static void Main(string[] args)
         {
-            //DoShit("redundancy");
+            DoShit("redundancy");
             DoShit("busy_day");
-            //DoShit("mother_of_all_warehouses");
+            DoShit("mother_of_all_warehouses");
         }
 
         static void DoShit(string fileName)
         {
+            Console.WriteLine("\n\n\n" + fileName + ":");
+            Console.Write("reading ... ");
             var sr = new StreamReader(fileName+".in");
             Loader.MotherOfLoad(sr, Warehouses, Orders, Drones);
             sr.Close();
+            Console.WriteLine("Done!");
 
-
+            Console.Write("Sorting ... ");
             var sortedOrders = GetOrdersSorted();
+            Console.WriteLine("Done!");
 
+
+            Console.Write("Processing ... ");
             foreach (var order in sortedOrders)
             {
                 while (!order.Done)
@@ -46,21 +52,21 @@ namespace p1
 
                         if (IncarcaDrona(drone, order))
                         {
-                            drone.UnloadToOrder(order.Id);
-                        }
-                        if (allCommands.Count >= 8969 && drone.Id == 6)
-                        {
-                            
-                        }
-                        allCommands.AddRange(drone.Commands);
+                            drone.DeliverToOrder(order);
 
-                        drone.Commands.Clear();
+                            allCommands.AddRange(drone.Commands);
 
-                        if (order.Done) break;
+                            drone.Commands.Clear();
+
+                            if (order.Done) break;
+                        }
+
                     }
                 }
             }
+            Console.WriteLine("Done!");
 
+            Console.Write("Writing ... ");
             var sw = new StreamWriter(fileName + ".out");
             sw.WriteLine(allCommands.Count);
             foreach (var cmd in allCommands)
@@ -68,10 +74,14 @@ namespace p1
                 sw.WriteLine(cmd.GetInfo());
             }
             sw.Close();
+            Console.WriteLine("Done!");
+
+            Console.Write("Clearing ... ");
             allCommands.Clear();
             Warehouses.Clear();
             Drones.Clear();
             Orders.Clear();
+            Console.WriteLine("Done!");
         }
 
         private static List<Order> GetOrdersSorted()
@@ -104,35 +114,27 @@ namespace p1
             {
                 for (var i = 0; i < Config.ProductTypes; i++)
                 {
-                    if (order.Needs[i] != 0 && wh.Item1.Products[i] != 0)
-                    {
-                        var maxPosCrtLoad = Math.Min(order.Needs[i], wh.Item1.Products[i]);
-                        if (loadedWeight + maxPosCrtLoad * Config.ProdWeights[i] > Config.MaxPayload)
-                        {
-                            maxPosCrtLoad = (Config.MaxPayload - loadedWeight)/Config.ProdWeights[i];
-                        }
-                        if (maxPosCrtLoad == 0)
-                        {
-                            //drona incarcata la maxim
-                            return stLoaded;
-                        }
-                        loadedWeight += maxPosCrtLoad*Config.ProdWeights[i];
-                        if (loadedWeight > Config.MaxPayload)
-                        {
-                            
-                        }
+                    if (order.Needs[i] == 0 || wh.Item1.Products[i] == 0) continue;
 
-                        if (drona.AddCommand(new LoadCommand(drona.Id, true, wh.Item1.Id, i, maxPosCrtLoad)))
-                        {
-                            order.Needs[i] -= maxPosCrtLoad;
-                            wh.Item1.Products[i] -= maxPosCrtLoad;
-                            stLoaded = true;
-                        }
-                        else
-                        {
-                            return stLoaded;
-                        }
+                    var maxPosCrtLoad = Math.Min(order.Needs[i], wh.Item1.Products[i]);
+                    if (loadedWeight + maxPosCrtLoad*Config.ProdWeights[i] > Config.MaxPayload)
+                    {
+                        maxPosCrtLoad = (Config.MaxPayload - loadedWeight)/Config.ProdWeights[i];
                     }
+                    if (maxPosCrtLoad == 0)
+                    {
+                        //drona incarcata la maxim
+                        return stLoaded;
+                    }
+                    loadedWeight += maxPosCrtLoad*Config.ProdWeights[i];
+
+                    //drona.Commands.Add(new LoadCommand(drona.Id, true, wh.Item1.Id, i, maxPosCrtLoad));
+                    drona.LoadSomething(wh.Item1, i, maxPosCrtLoad);
+
+                    order.Needs[i] -= maxPosCrtLoad;
+                    wh.Item1.Products[i] -= maxPosCrtLoad;
+
+                    stLoaded = true;
                 }
             }
             return stLoaded;

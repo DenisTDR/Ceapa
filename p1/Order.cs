@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace p1
 {
-    class Order
+    public class Order
     {
         public int Id { get; private set; }
         public Point Location { get; set; }
